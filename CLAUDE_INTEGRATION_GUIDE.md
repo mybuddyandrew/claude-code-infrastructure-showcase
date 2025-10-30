@@ -17,16 +17,73 @@ This repository is a **reference library** of Claude Code infrastructure compone
 
 ---
 
+## Tech Stack Compatibility Check
+
+**CRITICAL:** Before integrating a skill, verify the user's tech stack matches the skill requirements.
+
+### Frontend Skills
+
+**frontend-dev-guidelines requires:**
+- React (18+)
+- MUI v7
+- TanStack Query
+- TanStack Router
+- TypeScript
+
+**Before integrating, ask:**
+"Do you use React with MUI v7?"
+
+**If NO:**
+```
+The frontend-dev-guidelines skill is designed specifically for React + MUI v7. I can:
+1. Help you create a similar skill adapted for [their stack] using this as a template
+2. Extract the framework-agnostic patterns (file organization, performance, etc.)
+3. Skip this skill if not relevant
+
+Which would you prefer?
+```
+
+### Backend Skills
+
+**backend-dev-guidelines requires:**
+- Node.js/Express
+- TypeScript
+- Prisma ORM
+- Sentry
+
+**Before integrating, ask:**
+"Do you use Node.js with Express and Prisma?"
+
+**If NO:**
+```
+The backend-dev-guidelines skill is designed for Express/Prisma. I can:
+1. Help you create similar guidelines adapted for [their stack] using this as a template
+2. Extract the architecture patterns (layered architecture works for any framework)
+3. Skip this skill
+
+Which would you prefer?
+```
+
+### Skills That Are Tech-Agnostic
+
+These work for ANY tech stack:
+- ✅ **skill-developer** - Meta-skill, no tech requirements
+- ✅ **route-tester** - Only requires JWT cookie auth (framework agnostic)
+- ✅ **error-tracking** - Sentry works with most stacks
+
+---
+
 ## General Integration Pattern
 
 When user says: **"Add [component] to my project"**
 
 1. Identify component type (skill/hook/agent/command)
-2. Ask about their project structure
-3. Copy files
-4. Customize for their setup
-5. Verify integration
-6. Provide next steps
+2. **CHECK TECH STACK COMPATIBILITY** (for frontend/backend skills)
+3. Ask about their project structure
+4. Copy files OR adapt for their stack
+5. Customize for their setup
+6. Verify integration
+7. Provide next steps
 
 ---
 
@@ -128,31 +185,164 @@ cat $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json | jq .
 ### Skill-Specific Notes
 
 #### backend-dev-guidelines
-- **Needs:** Backend directory paths
-- **Ask:** "Where's your backend code?" "Do you use Express?"
-- **Customize:** pathPatterns only
+- **Tech Requirements:** Node.js/Express, Prisma, TypeScript, Sentry
+- **Ask:** "Do you use Express with Prisma?" "Where's your backend code?"
+- **If different stack:** Offer to adapt using this as template
+- **Customize:** pathPatterns
 - **Example paths:** `api/`, `server/`, `backend/`, `services/*/src/`
+- **Adaptation tip:** Architecture patterns (Routes→Controllers→Services) transfer to most frameworks
 
 #### frontend-dev-guidelines
-- **Needs:** Frontend directory + framework check
+- **Tech Requirements:** React 18+, MUI v7, TanStack Query/Router, TypeScript
 - **Ask:** "Do you use React with MUI v7?" "Where's your frontend code?"
-- **Customize:** pathPatterns + warn if not React/MUI
+- **If different stack:** Offer to create adapted version (Vue, Angular, etc.)
+- **Customize:** pathPatterns + all framework-specific examples
 - **Example paths:** `frontend/`, `client/`, `web/`, `apps/web/src/`
+- **Adaptation tip:** File organization and performance patterns transfer, component code doesn't
 
 #### route-tester
-- **Needs:** Auth type + API paths
+- **Tech Requirements:** JWT cookie-based authentication (framework agnostic)
 - **Ask:** "Do you use JWT cookie-based authentication?"
-- **If NO:** "This skill is designed for JWT cookies. Want me to adapt it or skip it?"
+- **If NO:** "This skill is designed for JWT cookies. Want me to adapt it for [their auth type] or skip it?"
 - **Customize:** Service URLs, auth patterns
+- **Works with:** Any backend framework using JWT cookies
 
 #### error-tracking
-- **Needs:** Backend paths
+- **Tech Requirements:** Sentry (works with most backends)
 - **Ask:** "Do you use Sentry?" "Where's your backend code?"
+- **If NO Sentry:** "Want to use this as template for [their error tracking]?"
 - **Customize:** pathPatterns
+- **Adaptation tip:** Error tracking philosophy transfers to other tools (Rollbar, Bugsnag, etc.)
 
 #### skill-developer
-- **Needs:** Nothing!
-- **Copy as-is** - meta-skill, fully generic
+- **Tech Requirements:** None!
+- **Copy as-is** - meta-skill, fully generic, teaches skill creation for ANY tech stack
+
+---
+
+## Adapting Skills for Different Tech Stacks
+
+When user's tech stack differs from skill requirements, you have options:
+
+### Option 1: Adapt Existing Skill (Recommended)
+
+**When to use:** User wants similar guidelines but for different tech
+
+**Process:**
+1. **Copy the skill as a starting point:**
+   ```bash
+   cp -r showcase/.claude/skills/frontend-dev-guidelines \\
+         $CLAUDE_PROJECT_DIR/.claude/skills/vue-dev-guidelines
+   ```
+
+2. **Identify what needs changing:**
+   - Framework-specific code examples (React → Vue)
+   - Library APIs (MUI → Vuetify/PrimeVue)
+   - Import statements
+   - Component patterns
+
+3. **Keep what transfers:**
+   - File organization principles
+   - Performance optimization strategies
+   - TypeScript standards
+   - General best practices
+
+4. **Replace examples systematically:**
+   - Ask user for equivalent patterns in their stack
+   - Update code examples to their framework
+   - Keep the overall structure and sections
+
+5. **Update skill name and triggers:**
+   - Rename skill appropriately
+   - Update skill-rules.json triggers for their stack
+   - Test activation
+
+**Example - Adapting frontend-dev-guidelines for Vue:**
+```
+I'll create vue-dev-guidelines based on the React skill structure:
+- Replace React.FC → Vue defineComponent
+- Replace useSuspenseQuery → Vue composables
+- Replace MUI components → [their component library]
+- Keep: File organization, performance patterns, TypeScript guidelines
+
+This will take a few minutes. Sound good?
+```
+
+### Option 2: Extract Framework-Agnostic Patterns
+
+**When to use:** Stacks are very different, but core principles apply
+
+**Process:**
+1. Read through the existing skill
+2. Identify framework-agnostic patterns:
+   - Layered architecture (backend)
+   - File organization strategies
+   - Performance optimization principles
+   - Testing strategies
+   - Error handling philosophy
+
+3. Create new skill with just those patterns
+4. User can add framework-specific examples later
+
+**Example:**
+```
+The backend-dev-guidelines uses Express, but the layered architecture
+(Routes → Controllers → Services → Repositories) works for Django too.
+
+I can create a skill with:
+- Layered architecture pattern
+- Separation of concerns principles
+- Error handling best practices
+- Testing strategies
+
+Then you can add Django-specific examples as you establish patterns.
+```
+
+### Option 3: Use as Reference Only
+
+**When to use:** Too different to adapt, but user wants inspiration
+
+**Process:**
+1. User browses the existing skill
+2. You help create a new skill from scratch
+3. Use existing skill's structure as a template
+4. Follow modular pattern (main + resource files)
+
+### What Usually Transfers Across Tech Stacks
+
+**Architecture & Organization:**
+- ✅ Layered architecture (Routes/Controllers/Services pattern)
+- ✅ Separation of concerns
+- ✅ File organization strategies (features/ pattern)
+- ✅ Progressive disclosure (main + resource files)
+- ✅ Repository pattern for data access
+
+**Development Practices:**
+- ✅ Error handling philosophy
+- ✅ Input validation importance
+- ✅ Testing strategies
+- ✅ Performance optimization principles
+- ✅ TypeScript best practices
+
+**Framework-Specific Code:**
+- ❌ React hooks → Don't transfer to Vue/Angular
+- ❌ MUI components → Different component libraries
+- ❌ Prisma queries → Different ORM syntax
+- ❌ Express middleware → Different framework patterns
+- ❌ Routing implementations → Framework-specific
+
+### When to Recommend Adaptation vs Skipping
+
+**Recommend adaptation if:**
+- User wants similar guidelines for their stack
+- Core patterns apply (layered architecture, etc.)
+- User has time to help with framework-specific examples
+
+**Recommend skipping if:**
+- Stacks are completely different
+- User doesn't need those patterns
+- Would take too long to adapt
+- User prefers creating from scratch
 
 ---
 
@@ -584,19 +774,70 @@ Use it by running the Task tool with:
 The agent will review your code and provide architectural feedback.
 ```
 
+### Example 3: Tech Stack Mismatch
+
+**User:** "Add the frontend-dev-guidelines skill to my Vue project"
+
+**Claude should:**
+```
+I see you're using Vue. The frontend-dev-guidelines skill is specifically
+designed for React + MUI v7. I have a few options:
+
+Option 1 (Recommended): I can create a vue-dev-guidelines skill using the
+React skill as a template. I'll adapt:
+- Component patterns for Vue (Composition API, defineComponent)
+- Replace MUI examples with your component library
+- Adapt data fetching for Vue patterns
+- Keep: File organization, performance principles, TypeScript standards
+
+Option 2: Extract only the framework-agnostic patterns (file organization,
+performance, testing) without React-specific code.
+
+Option 3: Skip it and help you create Vue guidelines from scratch.
+
+Which would you prefer?
+```
+
+**User:** "Option 1 sounds good, I use Vuetify"
+
+**Claude should:**
+1. Copy frontend-dev-guidelines as vue-dev-guidelines
+2. Go through each resource file
+3. Replace React patterns with Vue Composition API
+4. Replace MUI components with Vuetify
+5. Update skill-rules.json with Vue-specific triggers (.vue files)
+6. Respond:
+```
+✅ Created vue-dev-guidelines skill adapted for Vue 3 + Vuetify!
+
+What I changed:
+- React.FC components → Vue defineComponent
+- MUI v7 examples → Vuetify components
+- TanStack Query → Your data fetching approach
+- File patterns → .vue files
+
+What I kept:
+- File organization (features/ pattern)
+- Performance optimization strategies
+- TypeScript standards
+- Loading/error state principles
+
+Try editing a .vue file - the skill should activate.
+```
+
 ---
 
 ## Quick Reference Tables
 
 ### What Needs Customization?
 
-| Component | Customization | What to Ask |
-|-----------|--------------|-------------|
-| **skill-developer** | ✅ None | Copy as-is |
-| **backend-dev-guidelines** | ⚠️ Paths | "Where's your backend code?" |
-| **frontend-dev-guidelines** | ⚠️ Paths + framework | "Do you use React/MUI?" |
-| **route-tester** | ⚠️ Auth + paths | "JWT cookie auth?" |
-| **error-tracking** | ⚠️ Paths | "Where's your backend?" |
+| Component | Tech Requirements | Customization | What to Ask |
+|-----------|------------------|--------------|-------------|
+| **skill-developer** | None | ✅ None | Copy as-is |
+| **backend-dev-guidelines** | Express/Prisma/Node | ⚠️ Paths + tech check | "Use Express/Prisma?" "Where's backend?" |
+| **frontend-dev-guidelines** | React/MUI v7 | ⚠️⚠️ Paths + framework | "Use React/MUI v7?" "Where's frontend?" |
+| **route-tester** | JWT cookies | ⚠️ Auth + paths | "JWT cookie auth?" |
+| **error-tracking** | Sentry | ⚠️ Paths | "Use Sentry?" "Where's backend?" |
 | **skill-activation-prompt** | ✅ None | Copy as-is |
 | **post-tool-use-tracker** | ✅ None | Copy as-is |
 | **tsc-check** | ⚠️⚠️⚠️ Heavy | "Monorepo or single service?" |
