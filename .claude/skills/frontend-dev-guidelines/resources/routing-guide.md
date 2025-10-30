@@ -6,7 +6,7 @@ TanStack Router implementation with folder-based routing and lazy loading patter
 
 ## TanStack Router Overview
 
-PLP uses **TanStack Router** with file-based routing:
+**TanStack Router** with file-based routing:
 - Folder structure defines routes
 - Lazy loading for code splitting
 - Type-safe routing
@@ -22,13 +22,13 @@ PLP uses **TanStack Router** with file-based routing:
 routes/
   __root.tsx                    # Root layout
   index.tsx                     # Home route (/)
-  project-catalog/
-    index.tsx                   # /project-catalog
+  posts/
+    index.tsx                   # /posts
     create/
-      index.tsx                 # /project-catalog/create
-  forms/
-    index.tsx                   # /forms
-    $formId.tsx                 # /forms/:formId (dynamic)
+      index.tsx                 # /posts/create
+    $postId.tsx                 # /posts/:postId (dynamic)
+  comments/
+    index.tsx                   # /comments
 ```
 
 **Pattern**:
@@ -40,48 +40,42 @@ routes/
 
 ## Basic Route Pattern
 
-### Example from project-catalog/index.tsx
+### Example from posts/index.tsx
 
 ```typescript
 /**
- * Projects route component
- * Displays the main project catalog table
+ * Posts route component
+ * Displays the main blog posts list
  */
 
 import { createFileRoute } from '@tanstack/react-router';
 import { lazy } from 'react';
 
 // Lazy load the page component
-const SubmissionTable = lazy(() =>
-    import('@/features/submissions/components/SubmissionTable').then(
-        (module) => ({ default: module.SubmissionTable }),
+const PostsList = lazy(() =>
+    import('@/features/posts/components/PostsList').then(
+        (module) => ({ default: module.PostsList }),
     ),
 );
 
-// Constants for this route
-const PROJECT_CATALOG_FORM_ID = 744;
-const PROJECT_CATALOG_PROJECT_ID = 225;
-
-export const Route = createFileRoute('/project-catalog/')({
-    component: ProjectCatalogPage,
+export const Route = createFileRoute('/posts/')({
+    component: PostsPage,
     // Define breadcrumb data
     loader: () => ({
-        crumb: 'Projects',
+        crumb: 'Posts',
     }),
 });
 
-function ProjectCatalogPage() {
+function PostsPage() {
     return (
-        <SubmissionTable
-            formId={PROJECT_CATALOG_FORM_ID}
-            projectId={PROJECT_CATALOG_PROJECT_ID}
-            tableType='active_projects'
-            title='Project Catalog'
+        <PostsList
+            title='All Posts'
+            showFilters={true}
         />
     );
 }
 
-export default ProjectCatalogPage;
+export default PostsPage;
 ```
 
 **Key Points:**
@@ -208,16 +202,16 @@ function UserPage() {
 ### Multiple Parameters
 
 ```typescript
-// routes/forms/$formId/submissions/$submissionId.tsx
+// routes/posts/$postId/comments/$commentId.tsx
 
-export const Route = createFileRoute('/forms/$formId/submissions/$submissionId')({
-    component: SubmissionPage,
+export const Route = createFileRoute('/posts/$postId/comments/$commentId')({
+    component: CommentPage,
 });
 
-function SubmissionPage() {
-    const { formId, submissionId } = Route.useParams();
+function CommentPage() {
+    const { postId, commentId } = Route.useParams();
 
-    return <SubmissionEditor formId={formId} submissionId={submissionId} />;
+    return <CommentEditor postId={postId} commentId={commentId} />;
 }
 ```
 
@@ -234,10 +228,10 @@ export const MyComponent: React.FC = () => {
     const navigate = useNavigate();
 
     const handleClick = () => {
-        navigate({ to: '/project-catalog' });
+        navigate({ to: '/posts' });
     };
 
-    return <Button onClick={handleClick}>Go to Projects</Button>;
+    return <Button onClick={handleClick}>View Posts</Button>;
 };
 ```
 

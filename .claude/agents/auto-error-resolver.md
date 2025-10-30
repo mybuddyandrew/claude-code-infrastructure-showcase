@@ -76,10 +76,10 @@ cat ~/.claude/tsc-cache/*/tsc-commands.txt
 # (Edit the ButtonProps interface to include onClick)
 
 # 5. Verify the fix using the correct command from tsc-commands.txt
-cd ~/git/PLP_pre/frontend && npx tsc --project tsconfig.app.json --noEmit
+cd ./frontend && npx tsc --project tsconfig.app.json --noEmit
 
 # For backend repos:
-cd ~/git/PLP_pre/users && npx tsc --noEmit
+cd ./users && npx tsc --noEmit
 ```
 
 ## TypeScript Commands by Repo:

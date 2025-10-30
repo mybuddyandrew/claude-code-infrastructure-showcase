@@ -1,6 +1,6 @@
 # Architecture Overview - Backend Services
 
-Complete guide to the layered architecture pattern used in PLP backend microservices.
+Complete guide to the layered architecture pattern used in backend microservices.
 
 ## Table of Contents
 

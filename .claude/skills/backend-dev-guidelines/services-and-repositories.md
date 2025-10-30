@@ -54,7 +54,7 @@ Repository executes: "Here's the data you requested"
 
 ### Excellent Example: NotificationService
 
-**File:** `/email/src/services/NotificationService.ts`
+**File:** `/blog-api/src/services/NotificationService.ts`
 
 ```typescript
 // Define dependencies interface for clarity
@@ -239,11 +239,10 @@ const notification = await notificationService.createNotification({
 
 ### Example: PermissionService (Singleton)
 
-**File:** `/form/src/services/permissionService.ts`
+**File:** `/blog-api/src/services/permissionService.ts`
 
 ```typescript
-import { PrismaClient } from '@project-lifecycle-portal/database';
-import { PrismaService } from '@project-lifecycle-portal/database';
+import { PrismaClient } from '@prisma/client';
 
 class PermissionService {
     private static instance: PermissionService;
@@ -277,26 +276,25 @@ class PermissionService {
         }
 
         try {
-            const stepInstance = await this.prisma.workflowStepInstance.findUnique({
-                where: { stepInstanceID: stepInstanceId },
+            const post = await this.prisma.post.findUnique({
+                where: { id: postId },
                 include: {
-                    instance: {
+                    author: true,
+                    comments: {
                         include: {
-                            submission: true,
+                            user: true,
                         },
                     },
-                    stepRoleAssignments: true,
                 },
             });
 
-            if (!stepInstance) {
+            if (!post) {
                 return false;
             }
 
-            // Check if user is assigned to step
-            const isAssigned = stepInstance.stepRoleAssignments.some(
-                (assignment) => assignment.assignedUserId === userId
-            );
+            // Check if user has permission
+            const canEdit = post.authorId === userId ||
+                await this.isUserAdmin(userId);
 
             // Cache result
             this.permissionCache.set(cacheKey, {

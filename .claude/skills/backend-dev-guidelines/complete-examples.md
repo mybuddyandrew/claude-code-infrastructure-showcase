@@ -323,8 +323,8 @@ export class UserRepository {
 ### BEFORE: Business Logic in Routes ❌
 
 ```typescript
-// routes/submissionRoutes.ts (BAD - 200+ lines)
-router.post('/:formID/submit', async (req, res) => {
+// routes/postRoutes.ts (BAD - 200+ lines)
+router.post('/posts', async (req, res) => {
     try {
         const username = res.locals.claims.preferred_username;
         const responses = req.body.responses;
@@ -337,11 +337,12 @@ router.post('/:formID/submit', async (req, res) => {
             return res.status(403).json({ error: 'No permission' });
         }
 
-        // ❌ Workflow logic in route
-        const { createWorkflowEngine, CompleteStepCommand } = require('../workflow/core/WorkflowEngineV3');
-        const engine = await createWorkflowEngine();
-        const command = new CompleteStepCommand(stepInstanceId, userId, responses);
-        const events = await engine.executeCommand(command);
+        // ❌ Business logic in route
+        const post = await postRepository.create({
+            title: req.body.title,
+            content: req.body.content,
+            authorId: userId
+        });
 
         // ❌ More business logic...
         if (res.locals.isImpersonating) {
@@ -361,17 +362,17 @@ router.post('/:formID/submit', async (req, res) => {
 
 **1. Clean Route:**
 ```typescript
-// routes/submissionRoutes.ts
-import { SubmissionController } from '../controllers/SubmissionController';
+// routes/postRoutes.ts
+import { PostController } from '../controllers/PostController';
 
 const router = Router();
-const controller = new SubmissionController();
+const controller = new PostController();
 
 // ✅ CLEAN: 8 lines total!
-router.post('/:formID/submit',
+router.post('/',
     SSOMiddlewareClient.verifyLoginStatus,
     auditMiddleware,
-    async (req, res) => controller.submitForm(req, res)
+    async (req, res) => controller.createPost(req, res)
 );
 
 export default router;
@@ -379,31 +380,29 @@ export default router;
 
 **2. Controller:**
 ```typescript
-// controllers/SubmissionController.ts
-export class SubmissionController extends BaseController {
-    private submissionService: SubmissionService;
+// controllers/PostController.ts
+export class PostController extends BaseController {
+    private postService: PostService;
 
     constructor() {
         super();
-        this.submissionService = new SubmissionService();
+        this.postService = new PostService();
     }
 
-    async submitForm(req: Request, res: Response): Promise<void> {
+    async createPost(req: Request, res: Response): Promise<void> {
         try {
-            const validated = submitFormSchema.parse({
-                formID: parseInt(req.params.formID),
+            const validated = createPostSchema.parse({
                 ...req.body,
             });
 
-            const result = await this.submissionService.processSubmission(
+            const result = await this.postService.createPost(
                 validated,
-                res.locals.effectiveUserId,
-                res.locals
+                res.locals.userId
             );
 
-            this.handleSuccess(res, result, 'Submission processed');
+            this.handleSuccess(res, result, 'Post created successfully');
         } catch (error) {
-            this.handleError(error, res, 'submitForm');
+            this.handleError(error, res, 'createPost');
         }
     }
 }
@@ -411,12 +410,11 @@ export class SubmissionController extends BaseController {
 
 **3. Service:**
 ```typescript
-// services/submissionService.ts
-export class SubmissionService {
-    async processSubmission(
-        data: SubmitFormDTO,
-        userId: string,
-        context: any
+// services/postService.ts
+export class PostService {
+    async createPost(
+        data: CreatePostDTO,
+        userId: string
     ): Promise<SubmissionResult> {
         // Permission check
         const canComplete = await permissionService.canCompleteStep(

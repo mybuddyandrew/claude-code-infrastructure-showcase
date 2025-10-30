@@ -1,6 +1,6 @@
 # Middleware Guide - Express Middleware Patterns
 
-Complete guide to creating and using middleware in PLP backend services.
+Complete guide to creating and using middleware in backend microservices.
 
 ## Table of Contents
 
@@ -44,7 +44,7 @@ export class SSOMiddlewareClient {
 
 ## Audit Middleware with AsyncLocalStorage
 
-### Excellent Pattern from Form Service
+### Excellent Pattern from Blog API
 
 **File:** `/form/src/middleware/auditMiddleware.ts`
 

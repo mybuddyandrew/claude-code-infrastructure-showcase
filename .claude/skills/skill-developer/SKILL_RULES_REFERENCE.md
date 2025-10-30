@@ -217,7 +217,7 @@ Complete example of a suggestion-based domain skill:
         "cell renderer",
         "submission",
         "submissions",
-        "project catalog",
+        "blog dashboard",
         "datagrid",
         "data grid",
         "CustomToolbar",
@@ -232,7 +232,7 @@ Complete example of a suggestion-based domain skill:
       "intentPatterns": [
         "(how does|how do|explain|what is|describe).*?(layout|grid|toolbar|column|submission|catalog)",
         "(add|create|modify|change).*?(toolbar|column|cell|editor|renderer)",
-        "project catalog.*?"
+        "blog dashboard.*?"
       ]
     },
 

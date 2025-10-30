@@ -33,7 +33,7 @@ Include any relevant information about:
 - Performance optimizations made
 
 ### 3. Update Memory (if applicable)
-- Store any new patterns or solutions in plp-memory
+- Store any new patterns or solutions in project memory/documentation
 - Update entity relationships discovered
 - Add observations about system behavior
 

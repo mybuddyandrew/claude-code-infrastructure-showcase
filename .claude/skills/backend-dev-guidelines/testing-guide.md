@@ -150,17 +150,17 @@ describe('PermissionService', () => {
     let instanceId: number;
 
     beforeAll(async () => {
-        // Create test workflow instance
-        const instance = await PrismaService.main.workflowInstance.create({
-            data: { workflowCode: 'TEST', entityType: 'Test', entityID: 1 },
+        // Create test post
+        const post = await PrismaService.main.post.create({
+            data: { title: 'Test Post', content: 'Test', authorId: 'test-user' },
         });
-        instanceId = instance.instanceID;
+        instanceId = post.id;
     });
 
     afterAll(async () => {
         // Cleanup
-        await PrismaService.main.workflowInstance.delete({
-            where: { instanceID: instanceId },
+        await PrismaService.main.post.delete({
+            where: { id: instanceId },
         });
     });
 

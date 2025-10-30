@@ -28,7 +28,7 @@ You are an elite strategic planning specialist. Create a comprehensive, actionab
    - Estimate effort levels (S/M/L/XL)
 
 5. **Create task management structure**:
-   - Create directory: `~/git/PLP_pre/dev/active/[task-name]/`
+   - Create directory: `dev/active/[task-name]/` (relative to project root)
    - Generate three files:
      - `[task-name]-plan.md` - The comprehensive plan
      - `[task-name]-context.md` - Key files, decisions, dependencies
@@ -43,9 +43,9 @@ You are an elite strategic planning specialist. Create a comprehensive, actionab
 - Account for potential risks and edge cases
 
 ## Context References
-- Check `PROJECT_KNOWLEDGE.md` for architecture overview
-- Consult `BEST_PRACTICES.md` for coding standards
-- Reference `TROUBLESHOOTING.md` for common issues to avoid
-- Use `~/git/PLP_pre/dev/README.md` for task management guidelines
+- Check `PROJECT_KNOWLEDGE.md` for architecture overview (if exists)
+- Consult `BEST_PRACTICES.md` for coding standards (if exists)
+- Reference `TROUBLESHOOTING.md` for common issues to avoid (if exists)
+- Use `dev/README.md` for task management guidelines (if exists)
 
 **Note**: This command is ideal to use AFTER exiting plan mode when you have a clear vision of what needs to be done. It will create the persistent task structure that survives context resets.

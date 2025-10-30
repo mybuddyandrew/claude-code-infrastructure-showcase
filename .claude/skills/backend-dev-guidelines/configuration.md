@@ -1,6 +1,6 @@
 # Configuration Management - UnifiedConfig Pattern
 
-Complete guide to managing configuration in PLP backend services.
+Complete guide to managing configuration in backend microservices.
 
 ## Table of Contents
 
@@ -115,7 +115,7 @@ export interface UnifiedConfig {
 
 ### Implementation Pattern
 
-**File:** `/form/src/config/unifiedConfig.ts`
+**File:** `/blog-api/src/config/unifiedConfig.ts`
 
 ```typescript
 import * as fs from 'fs';
@@ -131,7 +131,7 @@ export const config: UnifiedConfig = {
         port: parseInt(iniConfig.database?.port || process.env.DB_PORT || '3306'),
         username: iniConfig.database?.username || process.env.DB_USER || 'root',
         password: iniConfig.database?.password || process.env.DB_PASSWORD || '',
-        database: iniConfig.database?.database || process.env.DB_NAME || 'plp_dev',
+        database: iniConfig.database?.database || process.env.DB_NAME || 'blog_dev',
     },
     server: {
         port: parseInt(iniConfig.server?.port || process.env.PORT || '3002'),
@@ -165,7 +165,7 @@ host = localhost
 port = 3306
 username = root
 password = password1
-database = plp_dev
+database = blog_dev
 
 [server]
 port = 3002
@@ -177,8 +177,8 @@ inactivity = 30m
 internal = internal-api-token
 
 [keycloak]
-realm = plp
-client = plp-client
+realm = myapp
+client = myapp-client
 baseUrl = http://localhost:8080
 secret = keycloak-client-secret
 
@@ -240,7 +240,7 @@ export const config: UnifiedConfig = {
 ### Find All process.env Usage
 
 ```bash
-grep -r "process.env" form/src/ --include="*.ts" | wc -l
+grep -r "process.env" blog-api/src/ --include="*.ts" | wc -l
 ```
 
 ### Migration Example

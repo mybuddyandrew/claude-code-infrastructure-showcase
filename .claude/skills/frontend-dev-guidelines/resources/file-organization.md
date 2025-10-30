@@ -1,6 +1,6 @@
 # File Organization
 
-Proper file and directory structure for maintainable, scalable frontend code in the PLP application.
+Proper file and directory structure for maintainable, scalable frontend code in the the application.
 
 ---
 
@@ -17,8 +17,8 @@ Proper file and directory structure for maintainable, scalable frontend code in 
 - Feature has custom hooks/utilities
 
 **Examples:**
-- `features/submissions/` - Project catalog/submission management
-- `features/forms/` - Form builder and rendering
+- `features/posts/` - Project catalog/post management
+- `features/blogs/` - Blog builder and rendering
 - `features/auth/` - Authentication flows
 
 **Structure:**
@@ -72,22 +72,22 @@ components/
 
 ### Complete Feature Example
 
-Based on `features/submissions/` structure:
+Based on `features/posts/` structure:
 
 ```
 features/
-  submissions/
+  posts/
     api/
-      submissionApi.ts              # API service layer (GET, POST, PUT, DELETE)
+      postApi.ts              # API service layer (GET, POST, PUT, DELETE)
 
     components/
-      SubmissionTable.tsx           # Main container component
+      PostTable.tsx           # Main container component
       grids/
-        SubmissionDataGrid/
-          SubmissionDataGrid.tsx
+        PostDataGrid/
+          PostDataGrid.tsx
       drawers/
-        ProjectSubmissionDrawer/
-          ProjectSubmissionDrawer.tsx
+        ProjectPostDrawer/
+          ProjectPostDrawer.tsx
       cells/
         editors/
           TextEditCell.tsx
@@ -97,23 +97,23 @@ features/
         CustomToolbar.tsx
 
     hooks/
-      useSubmissionQueries.ts       # Regular queries
-      useSuspenseSubmission.ts      # Suspense queries
-      useSubmissionMutations.ts     # Mutations
+      usePostQueries.ts       # Regular queries
+      useSuspensePost.ts      # Suspense queries
+      usePostMutations.ts     # Mutations
       useGridLayout.ts              # Feature-specific hooks
 
     helpers/
-      submissionHelpers.ts          # Utility functions
+      postHelpers.ts          # Utility functions
       validation.ts                 # Validation logic
 
     types/
       index.ts                      # TypeScript types/interfaces
 
     queries/
-      submissionQueries.ts          # Query key factories (optional)
+      postQueries.ts          # Query key factories (optional)
 
     context/
-      SubmissionContext.tsx         # React context (if needed)
+      PostContext.tsx         # React context (if needed)
 
     index.ts                        # Public API exports
 ```
@@ -134,11 +134,11 @@ import apiClient from '@/lib/apiClient';
 
 export const myFeatureApi = {
     getItem: async (id: number) => {
-        const { data } = await apiClient.get(`/form/items/${id}`);
+        const { data } = await apiClient.get(`/blog/items/${id}`);
         return data;
     },
     createItem: async (payload) => {
-        const { data } = await apiClient.post('/form/items', payload);
+        const { data } = await apiClient.post('/blog/items', payload);
         return data;
     },
 };
@@ -164,8 +164,8 @@ components/
     MyFeatureContainer.tsx
   presentational/
     MyFeatureDisplay.tsx
-  forms/
-    MyFeatureForm.tsx
+  blogs/
+    MyFeatureBlog.tsx
 ```
 
 #### hooks/ Directory
@@ -194,7 +194,7 @@ hooks/
 helpers/
   myFeatureHelpers.ts           # General utilities
   validation.ts                 # Validation logic
-  transformers.ts               # Data transformations
+  transblogers.ts               # Data transblogations
   constants.ts                  # Constants
 ```
 
@@ -230,7 +230,7 @@ From `vite.config.ts` lines 180-185:
 // ✅ PREFERRED - Use aliases for absolute imports
 import { apiClient } from '@/lib/apiClient';
 import { SuspenseLoader } from '~components/SuspenseLoader';
-import { submissionApi } from '~features/submissions/api/submissionApi';
+import { postApi } from '~features/posts/api/postApi';
 import type { User } from '~types/user';
 
 // ❌ AVOID - Relative paths from deep nesting
@@ -248,7 +248,7 @@ import { SuspenseLoader } from '../../../components/SuspenseLoader';
 
 **~types (Type Imports)**:
 ```typescript
-import type { Submission } from '~types/submission';
+import type { Post } from '~types/post';
 import type { User, UserRole } from '~types/user';
 ```
 
@@ -261,7 +261,7 @@ import { ErrorBoundary } from '~components/ErrorBoundary';
 
 **~features (Feature Imports)**:
 ```typescript
-import { submissionApi } from '~features/submissions/api/submissionApi';
+import { postApi } from '~features/posts/api/postApi';
 import { useAuth } from '~features/auth/hooks/useAuth';
 ```
 
@@ -275,7 +275,7 @@ import { useAuth } from '~features/auth/hooks/useAuth';
 
 ```
 MyComponent.tsx
-SubmissionDataGrid.tsx
+PostDataGrid.tsx
 CustomAppBar.tsx
 ```
 
@@ -290,7 +290,7 @@ CustomAppBar.tsx
 
 ```
 useMyFeature.ts
-useSuspenseSubmission.ts
+useSuspensePost.ts
 useAuth.ts
 useGridLayout.ts
 ```
@@ -301,7 +301,7 @@ useGridLayout.ts
 
 ```
 myFeatureApi.ts
-submissionApi.ts
+postApi.ts
 userApi.ts
 ```
 
@@ -312,7 +312,7 @@ userApi.ts
 ```
 myFeatureHelpers.ts
 validation.ts
-transformers.ts
+transblogers.ts
 constants.ts
 ```
 
@@ -322,7 +322,7 @@ constants.ts
 
 ```
 types/index.ts
-types/submission.ts
+types/post.ts
 types/user.ts
 ```
 
@@ -338,7 +338,7 @@ types/user.ts
 - Will grow over time
 - Reused across multiple routes
 
-**Example:** `features/submissions/`
+**Example:** `features/posts/`
 - 20+ components
 - Own API service
 - Complex state management
@@ -351,7 +351,7 @@ types/user.ts
 - Logically grouped
 - Extends existing functionality
 
-**Example:** Adding export dialog to submissions feature
+**Example:** Adding export dialog to posts feature
 
 ### Create Reusable Component When:
 
@@ -384,10 +384,10 @@ import { apiClient } from '@/lib/apiClient';
 import { useAuth } from '@/hooks/useAuth';
 import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
 import { SuspenseLoader } from '~components/SuspenseLoader';
-import { submissionApi } from '~features/submissions/api/submissionApi';
+import { postApi } from '~features/posts/api/postApi';
 
 // 4. Type imports (grouped)
-import type { Submission } from '~types/submission';
+import type { Post } from '~types/post';
 import type { User } from '~types/user';
 
 // 5. Relative imports (same feature)
@@ -440,14 +440,14 @@ import { MyFeatureMain } from '~features/my-feature/components/MyFeatureMain';
 ```
 src/
 ├── features/                    # Domain-specific features
-│   ├── submissions/
+│   ├── posts/
 │   │   ├── api/
 │   │   ├── components/
 │   │   ├── hooks/
 │   │   ├── helpers/
 │   │   ├── types/
 │   │   └── index.ts
-│   ├── forms/
+│   ├── blogs/
 │   └── auth/
 │
 ├── components/                  # Reusable components
@@ -462,7 +462,7 @@ src/
 │   ├── project-catalog/
 │   │   ├── index.tsx
 │   │   └── create/
-│   └── forms/
+│   └── blogs/
 │
 ├── hooks/                       # Shared hooks
 │   ├── useAuth.ts
@@ -475,7 +475,7 @@ src/
 │
 ├── types/                       # Shared TypeScript types
 │   ├── user.ts
-│   ├── submission.ts
+│   ├── post.ts
 │   └── common.ts
 │
 ├── config/                      # Configuration

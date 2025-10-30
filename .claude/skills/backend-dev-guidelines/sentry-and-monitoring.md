@@ -28,7 +28,7 @@ Complete guide to error tracking and performance monitoring with Sentry v8.
 
 **Location:** `src/instrument.ts` (MUST be first import in server.ts and all cron jobs)
 
-**Template from Email/Form Services:**
+**Template for Microservices:**
 
 ```typescript
 import * as Sentry from '@sentry/node';
@@ -137,17 +137,16 @@ protected handleError(error: unknown, res: Response, context: string, statusCode
 ### 2. Workflow Error Handling
 
 ```typescript
-import { WorkflowSentryHelper } from '../workflow/utils/sentryHelper';
+import { SentryHelper } from '../utils/sentryHelper';
 
 try {
-    await workflowOperation();
+    await businessOperation();
 } catch (error) {
-    WorkflowSentryHelper.captureWorkflowError(error, {
-        workflowCode: 'DHS_CLOSEOUT',
-        instanceId: 123,
-        stepId: 456,
+    SentryHelper.captureOperationError(error, {
+        operationType: 'POST_CREATION',
+        entityId: 123,
         userId: 'user-123',
-        operation: 'stepCompletion',
+        operation: 'createPost',
     });
     throw error;
 }

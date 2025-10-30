@@ -1,122 +1,50 @@
-# Claude Code Hooks System
+# Hooks
 
-This directory contains production-tested hooks that enhance Claude Code's capabilities through automated tracking, error detection, skill activation, and code formatting.
+Claude Code hooks that enable skill auto-activation, file tracking, and validation.
 
-## Available Hooks
+---
 
-### 1. skill-activation-prompt (UserPromptSubmit)
-**Purpose**: Automatically activates skills based on user prompts
+## What Are Hooks?
 
-**How it works:**
-- Intercepts user prompts before Claude sees them
-- Reads `skill-rules.json` to find matching skills
-- Injects skill activation instructions into the prompt
-- **This is the breakthrough** that makes skills actually activate automatically
+Hooks are scripts that run at specific points in Claude's workflow:
+- **UserPromptSubmit**: When user submits a prompt
+- **PreToolUse**: Before a tool executes  
+- **PostToolUse**: After a tool completes
+- **Stop**: When user requests to stop
 
-**Files:**
-- `skill-activation-prompt.sh` - Shell wrapper
-- `skill-activation-prompt.ts` - TypeScript implementation
+**Key insight:** Hooks can modify prompts, block actions, and track state - enabling features Claude can't do alone.
 
-### 2. error-handling-reminder (Stop)
-**Purpose**: Gentle post-response reminder about error handling best practices
+---
 
-**How it works:**
-- Runs after Claude finishes responding
-- Analyzes edited files for risky patterns (async, Prisma, API calls, controllers)
-- Shows categorized reminders only if risky code was detected
-- Non-blocking (doesn't interrupt workflow)
+## Essential Hooks (Start Here)
 
-**Files:**
-- `error-handling-reminder.sh` - Shell wrapper
-- `error-handling-reminder.ts` - TypeScript implementation
+### skill-activation-prompt (UserPromptSubmit)
 
-**Disable:** Set environment variable `SKIP_ERROR_REMINDER=1`
-
-### 3. post-tool-use-tracker (PostToolUse)
-**Purpose**: Tracks all file edits and determines affected services
+**Purpose:** Automatically suggests relevant skills based on user prompts and file context
 
 **How it works:**
-- Triggers after Edit, MultiEdit, or Write tools
-- Auto-detects project structure (frontend, backend, database, packages)
-- Stores tracking data for other hooks to use
-- Builds commands for TypeScript checking and builds
+1. Reads `skill-rules.json`
+2. Matches user prompt against trigger patterns
+3. Checks which files user is working with
+4. Injects skill suggestions into Claude's context
 
-**Cache location:** `$CLAUDE_PROJECT_DIR/.claude/tsc-cache/[session_id]/`
+**Why it's essential:** This is THE hook that makes skills auto-activate.
 
-### 4. stop-prettier-formatter (Stop)
-**Purpose**: Automatically format edited files with Prettier
+**Integration:**
+```bash
+# Copy both files
+cp skill-activation-prompt.sh your-project/.claude/hooks/
+cp skill-activation-prompt.ts your-project/.claude/hooks/
 
-**How it works:**
-- Runs first in Stop hook chain
-- Formats all edited TypeScript, JavaScript, and JSON files
-- Searches upward for `.prettierrc` config
-- Falls back to Prettier defaults if no config found
+# Make executable
+chmod +x your-project/.claude/hooks/skill-activation-prompt.sh
 
-### 5. stop-build-check-enhanced (Stop)
-**Purpose**: Run TypeScript checks and report errors
-
-**How it works:**
-- Runs second in Stop hook chain
-- Executes `tsc --noEmit` on affected services
-- Reports errors with actionable suggestions
-- For ≥5 errors, recommends using auto-error-resolver agent
-
-## Hook Flow
-
-```
-User Prompt
-    ↓
-[UserPromptSubmit] skill-activation-prompt
-    ↓
-Modified Prompt + Skill Instructions
-    ↓
-Claude Processes Request
-    ↓
-[PostToolUse] post-tool-use-tracker (tracks edits)
-    ↓
-Claude Completes Response
-    ↓
-[Stop] stop-prettier-formatter (formats files)
-    ↓
-[Stop] stop-build-check-enhanced (checks types)
-    ↓
-[Stop] error-handling-reminder (shows reminders)
+# Install dependencies
+cd your-project/.claude/hooks
+npm install
 ```
 
-## Project Structure Detection
-
-The hooks automatically detect common project structures:
-
-**Frontend:**
-- `frontend/`, `client/`, `web/`, `app/`, `ui/`
-
-**Backend:**
-- `backend/`, `server/`, `api/`, `src/`, `services/`
-
-**Database:**
-- `database/`, `prisma/`, `migrations/`
-
-**Monorepo:**
-- `packages/*`, `examples/*`
-
-## Cache Structure
-
-```
-$CLAUDE_PROJECT_DIR/.claude/tsc-cache/[session_id]/
-├── edited-files.log      # timestamp:path:repo format
-├── affected-repos.txt    # List of repos that were edited
-├── commands.txt          # Build and TSC commands per repo
-├── last-errors.txt       # Combined error output
-├── tsc-commands.txt      # TSC commands for resolver
-└── results/
-    ├── [repo]-errors.txt # Error output per repo
-    └── error-summary.txt # Error count summary
-```
-
-## Configuration
-
-Hooks are registered in `.claude/settings.json`:
-
+**Add to settings.json:**
 ```json
 {
   "hooks": {
@@ -129,7 +57,40 @@ Hooks are registered in `.claude/settings.json`:
           }
         ]
       }
-    ],
+    ]
+  }
+}
+```
+
+**Customization:** ✅ None needed - reads skill-rules.json automatically
+
+---
+
+### post-tool-use-tracker (PostToolUse)
+
+**Purpose:** Tracks file changes to maintain context across sessions
+
+**How it works:**
+1. Monitors Edit/Write/MultiEdit tool calls
+2. Records which files were modified
+3. Creates cache for context management
+4. Auto-detects project structure (frontend, backend, packages, etc.)
+
+**Why it's essential:** Helps Claude understand what parts of your codebase are active.
+
+**Integration:**
+```bash
+# Copy file
+cp post-tool-use-tracker.sh your-project/.claude/hooks/
+
+# Make executable
+chmod +x your-project/.claude/hooks/post-tool-use-tracker.sh
+```
+
+**Add to settings.json:**
+```json
+{
+  "hooks": {
     "PostToolUse": [
       {
         "matcher": "Edit|MultiEdit|Write",
@@ -140,100 +101,63 @@ Hooks are registered in `.claude/settings.json`:
           }
         ]
       }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/stop-prettier-formatter.sh"
-          },
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/stop-build-check-enhanced.sh"
-          },
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/error-handling-reminder.sh"
-          }
-        ]
-      }
     ]
   }
 }
 ```
 
-## Installation
+**Customization:** ✅ None needed - auto-detects structure
 
-1. Copy `.claude/hooks/` directory to your project
-2. Install TypeScript dependencies:
+---
+
+## Optional Hooks (Require Customization)
+
+### tsc-check (Stop)
+
+**Purpose:** TypeScript compilation check when user stops
+
+**⚠️ WARNING:** Configured for multi-service monorepo structure
+
+**Integration:**
+
+**First, determine if this is right for you:**
+- ✅ Use if: Multi-service TypeScript monorepo
+- ❌ Skip if: Single-service project or different build setup
+
+**If using:**
+1. Copy tsc-check.sh
+2. **EDIT the service detection (line ~28):**
    ```bash
-   cd .claude/hooks && npm install
+   # Replace example services with YOUR services:
+   case "$repo" in
+       api|web|auth|payments|...)  # ← Your actual services
    ```
-3. Register hooks in `.claude/settings.json` (see above)
-4. Create `.claude/skills/skill-rules.json` (required for skill-activation-prompt)
+3. Test manually before adding to settings.json
 
-## Customization
+**Customization:** ⚠️⚠️⚠️ Heavy
 
-### Adding New Repo Patterns
+---
 
-Edit `post-tool-use-tracker.sh`, function `detect_repo()`:
+### trigger-build-resolver (Stop)
 
-```bash
-case "$repo" in
-    your-service-dir)
-        echo "$repo"
-        ;;
-esac
-```
+**Purpose:** Auto-launches build-error-resolver agent when compilation fails
 
-### Changing Error Thresholds
+**Depends on:** tsc-check hook working correctly
 
-Edit `stop-build-check-enhanced.sh`, line with error count check:
+**Customization:** ✅ None (but tsc-check must work first)
 
-```bash
-if [[ $total_errors -ge 5 ]]; then  # Change this number
-```
+---
 
-### Disabling Specific Hooks
+## For Claude Code
 
-Remove the hook from `.claude/settings.json` or set environment variables:
-- `SKIP_ERROR_REMINDER=1` - Disable error handling reminders
+**When setting up hooks for a user:**
 
-## Best Practices
+1. **Read [CLAUDE_INTEGRATION_GUIDE.md](../../CLAUDE_INTEGRATION_GUIDE.md)** first
+2. **Always start with the two essential hooks**
+3. **Ask before adding Stop hooks** - they can block if misconfigured  
+4. **Verify after setup:**
+   ```bash
+   ls -la .claude/hooks/*.sh | grep rwx
+   ```
 
-1. **Don't block workflow** - Hooks should enhance, not interrupt
-2. **Use session cache** - Prevents duplicate reminders
-3. **Exit code 0** - Skip conditions should exit cleanly
-4. **Exit code 2** - Use to send feedback to Claude
-5. **Test thoroughly** - Hooks run on every action
-
-## Troubleshooting
-
-**Hook not running:**
-- Check `.claude/settings.json` registration
-- Verify script has execute permissions (`chmod +x`)
-- Check TypeScript compilation (`cd .claude/hooks && npx tsc`)
-
-**False positives:**
-- Adjust pattern detection in TypeScript files
-- Add skip conditions for specific file types
-
-**Performance issues:**
-- Hooks run synchronously - keep them fast
-- Use caching to avoid repeated work
-- Consider async processing for heavy operations
-
-## Philosophy
-
-These hooks follow a **gentle, non-blocking** philosophy:
-- **Suggest, don't block** - Provide guidance without interrupting workflow
-- **Smart detection** - Only trigger when relevant
-- **Session awareness** - Don't repeat the same reminder
-- **Production-tested** - 6 months of real-world use
-
-## See Also
-
-- [HOOKS_SYSTEM.md](../../docs/HOOKS_SYSTEM.md) - Complete hooks reference
-- [SKILLS_SYSTEM.md](../../docs/SKILLS_SYSTEM.md) - Skills integration guide
-- [CONFIG.md](./CONFIG.md) - Configuration options
+**Questions?** See [CLAUDE_INTEGRATION_GUIDE.md](../../CLAUDE_INTEGRATION_GUIDE.md)

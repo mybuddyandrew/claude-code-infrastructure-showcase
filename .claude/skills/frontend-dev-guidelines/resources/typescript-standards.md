@@ -1,6 +1,6 @@
 # TypeScript Standards
 
-TypeScript best practices for type safety and maintainability in PLP frontend code.
+TypeScript best practices for type safety and maintainability in React frontend code.
 
 ---
 
@@ -108,7 +108,7 @@ function useMyData(id: number): { data: Data; isLoading: boolean } {
 ```typescript
 // ✅ CORRECT - Explicitly mark as type import
 import type { User } from '~types/user';
-import type { Submission } from '~types/submission';
+import type { Post } from '~types/post';
 import type { SxProps, Theme } from '@mui/material';
 
 // ❌ AVOID - Mixed value and type imports

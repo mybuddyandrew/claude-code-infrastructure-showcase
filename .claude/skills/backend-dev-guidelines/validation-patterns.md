@@ -36,7 +36,7 @@ Complete guide to input validation using Zod schemas for type-safe validation.
 
 ### Migration from Joi
 
-PLP is migrating from Joi to Zod:
+Modern validation uses Zod instead of Joi:
 
 ```typescript
 // ❌ OLD - Joi (being phased out)
@@ -276,7 +276,7 @@ const createProxySchemaWithValidation = createProxySchema.refine(
 // Workflow start schema
 const startWorkflowSchema = z.object({
     workflowCode: z.string().min(1),
-    entityType: z.enum(['Submission', 'Project', 'Contract']),
+    entityType: z.enum(['Post', 'User', 'Comment']),
     entityID: z.number().int().positive(),
     dryRun: z.boolean().optional().default(false),
 });
@@ -578,18 +578,18 @@ catch (error) {
 // Validate based on other field values
 const submissionSchema = z.object({
     type: z.enum(['NEW', 'UPDATE']),
-    submissionId: z.number().optional(),
+    postId: z.number().optional(),
 }).refine(
     (data) => {
-        // If type is UPDATE, submissionId is required
+        // If type is UPDATE, postId is required
         if (data.type === 'UPDATE') {
-            return data.submissionId !== undefined;
+            return data.postId !== undefined;
         }
         return true;
     },
     {
-        message: 'submissionId is required when type is UPDATE',
-        path: ['submissionId'],
+        message: 'postId is required when type is UPDATE',
+        path: ['postId'],
     }
 );
 ```

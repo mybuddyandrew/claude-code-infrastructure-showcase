@@ -1,13 +1,13 @@
 ---
 name: frontend-dev-guidelines
-description: Frontend development guidelines for PLP React/TypeScript application. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and TypeScript best practices. Use when creating components, pages, features, fetching data, styling, routing, or working with frontend code.
+description: Frontend development guidelines for React/TypeScript applications. Modern patterns including Suspense, lazy loading, useSuspenseQuery, file organization with features directory, MUI v7 styling, TanStack Router, performance optimization, and TypeScript best practices. Use when creating components, pages, features, fetching data, styling, routing, or working with frontend code.
 ---
 
 # Frontend Development Guidelines
 
 ## Purpose
 
-Comprehensive guide for modern React development in the PLP application, emphasizing Suspense-based data fetching, lazy loading, proper file organization, and performance optimization.
+Comprehensive guide for modern React development, emphasizing Suspense-based data fetching, lazy loading, proper file organization, and performance optimization.
 
 ## When to Use This Skill
 
@@ -92,7 +92,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useMuiSnackbar } from '@/hooks/useMuiSnackbar';
 
 // Types
-import type { Submission } from '~types/submission';
+import type { Post } from '~types/post';
 ```
 
 ---
@@ -138,7 +138,7 @@ import type { Submission } from '~types/submission';
 ### 📁 File Organization
 
 **features/ vs components/:**
-- `features/`: Domain-specific (submissions, forms, auth)
+- `features/`: Domain-specific (posts, comments, auth)
 - `components/`: Truly reusable (SuspenseLoader, CustomAppBar)
 
 **Feature Subdirectories:**
@@ -391,8 +391,8 @@ For complete examples, see [resources/complete-examples.md](resources/complete-e
 
 ## Related Skills
 
-- **project-catalog-developer**: Specific to project catalog/submissions feature
-- **plp-sentry-integration**: Error tracking (applies to frontend too)
+- **error-tracking**: Error tracking with Sentry (applies to frontend too)
+- **backend-dev-guidelines**: Backend API patterns that frontend consumes
 
 ---
 

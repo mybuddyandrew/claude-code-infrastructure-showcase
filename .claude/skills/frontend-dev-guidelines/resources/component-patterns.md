@@ -1,6 +1,6 @@
 # Component Patterns
 
-Modern React component architecture for PLP application emphasizing type safety, lazy loading, and Suspense boundaries.
+Modern React component architecture for the application emphasizing type safety, lazy loading, and Suspense boundaries.
 
 ---
 
@@ -8,7 +8,7 @@ Modern React component architecture for PLP application emphasizing type safety,
 
 ### Why React.FC
 
-All PLP components use the `React.FC<Props>` pattern for:
+All components use the `React.FC<Props>` pattern for:
 - Explicit type safety for props
 - Consistent component signatures
 - Clear prop interface documentation
@@ -61,8 +61,8 @@ Lazy load components that are:
 import React from 'react';
 
 // Lazy load heavy component
-const SubmissionDataGrid = React.lazy(() =>
-    import('./grids/SubmissionDataGrid')
+const PostDataGrid = React.lazy(() =>
+    import('./grids/PostDataGrid')
 );
 
 // For named exports
@@ -73,31 +73,31 @@ const MyComponent = React.lazy(() =>
 );
 ```
 
-**Example from SubmissionTable.tsx:**
+**Example from PostTable.tsx:**
 
 ```typescript
 /**
- * Main submission table container component
+ * Main post table container component
  */
 import React, { useState, useCallback } from 'react';
 import { Box, Paper } from '@mui/material';
 
-// Lazy load SubmissionDataGrid to optimize bundle size
-const SubmissionDataGrid = React.lazy(() => import('./grids/SubmissionDataGrid'));
+// Lazy load PostDataGrid to optimize bundle size
+const PostDataGrid = React.lazy(() => import('./grids/PostDataGrid'));
 
 import { SuspenseLoader } from '~components/SuspenseLoader';
 
-export const SubmissionTable: React.FC<SubmissionTableProps> = ({ formId }) => {
+export const PostTable: React.FC<PostTableProps> = ({ formId }) => {
     return (
         <Box>
             <SuspenseLoader>
-                <SubmissionDataGrid formId={formId} />
+                <PostDataGrid formId={formId} />
             </SuspenseLoader>
         </Box>
     );
 };
 
-export default SubmissionTable;
+export default PostTable;
 ```
 
 ---
@@ -486,7 +486,7 @@ export const DataProvider: React.FC<DataProviderProps> = ({ children }) => {
 
 ## Summary
 
-**Modern PLP Component Recipe:**
+**Modern Component Recipe:**
 1. `React.FC<Props>` with TypeScript
 2. Lazy load if heavy: `React.lazy(() => import())`
 3. Wrap in `<SuspenseLoader>` for loading

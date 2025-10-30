@@ -1,13 +1,13 @@
 ---
 name: backend-dev-guidelines
-description: Comprehensive backend development guide for PLP Node.js/Express/TypeScript microservices. Use when creating routes, controllers, services, repositories, middleware, or working with Express APIs, Prisma database access, Sentry error tracking, Zod validation, unifiedConfig, dependency injection, or async patterns. Covers layered architecture (routes → controllers → services → repositories), BaseController pattern, error handling, performance monitoring, testing strategies, and migration from legacy patterns.
+description: Comprehensive backend development guide for Node.js/Express/TypeScript microservices. Use when creating routes, controllers, services, repositories, middleware, or working with Express APIs, Prisma database access, Sentry error tracking, Zod validation, unifiedConfig, dependency injection, or async patterns. Covers layered architecture (routes → controllers → services → repositories), BaseController pattern, error handling, performance monitoring, testing strategies, and migration from legacy patterns.
 ---
 
 # Backend Development Guidelines
 
 ## Purpose
 
-Establish consistency and best practices across all PLP backend microservices (form, email, users, projects, utilities) using modern Node.js/Express/TypeScript patterns.
+Establish consistency and best practices across backend microservices (blog-api, auth-service, notifications-service) using modern Node.js/Express/TypeScript patterns.
 
 ## When to Use This Skill
 
@@ -186,8 +186,8 @@ import express, { Request, Response, NextFunction, Router } from 'express';
 import { z } from 'zod';
 
 // Database
-import { PrismaService } from '@project-lifecycle-portal/database';
-import type { Prisma } from '@project-lifecycle-portal/database';
+import { PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 // Sentry
 import * as Sentry from '@sentry/node';
@@ -218,8 +218,8 @@ import { asyncErrorWrapper } from './middleware/errorBoundary';
 
 ### Service Templates
 
-**Email Service** (✅ Mature) - Use as template
-**Form Service** (⚠️ Transitioning) - Study workflow, avoid legacy patterns
+**Blog API** (✅ Mature) - Use as template for REST APIs
+**Auth Service** (✅ Mature) - Use as template for authentication patterns
 
 ---
 
@@ -291,11 +291,9 @@ Full examples, refactoring guide
 
 ## Related Skills
 
-- **plp-database-verification** - Verify column names
-- **plp-prisma-operations** - Safe Prisma operations
-- **plp-sentry-integration** - Sentry patterns
-- **plp-workflow-developer** - Workflow architecture
-- **plp-notification-developer** - Notification patterns
+- **database-verification** - Verify column names and schema consistency
+- **error-tracking** - Sentry integration patterns
+- **skill-developer** - Meta-skill for creating and managing skills
 
 ---
 

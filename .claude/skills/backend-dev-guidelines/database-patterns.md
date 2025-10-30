@@ -1,6 +1,6 @@
 # Database Patterns - Prisma Best Practices
 
-Complete guide to database access patterns using Prisma in PLP services.
+Complete guide to database access patterns using Prisma in backend microservices.
 
 ## Table of Contents
 
@@ -136,7 +136,7 @@ const user = await PrismaService.main.user.findUnique({
     where: { id },
     include: {
         profile: true,
-        submissions: { include: { responses: true } },
+        posts: { include: { comments: true } },
         workflows: { include: { steps: { include: { actions: true } } } },
     },
 });

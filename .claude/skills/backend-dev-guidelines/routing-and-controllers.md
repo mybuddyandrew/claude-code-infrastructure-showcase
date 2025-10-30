@@ -84,7 +84,7 @@ export default router;
 - Performance tracking utilities
 - Logging and breadcrumb helpers
 
-### Email Service BaseController (Template)
+### BaseController Pattern (Template)
 
 **File:** `/email/src/controllers/BaseController.ts`
 
@@ -422,13 +422,13 @@ router.post('/:formID/submit', async (req: Request, res: Response) => {
         }
 
         // ❌ Response processing in route
-        const instance = await PrismaService.main.workflowInstance.findUnique({
-            where: { instanceID: stepInstance.instanceID },
-            include: { steps: true },
+        const post = await PrismaService.main.post.findUnique({
+            where: { id: postData.id },
+            include: { comments: true },
         });
 
-        // ❌ Role synchronization in route
-        await synchronizeRoles(instance, userId);
+        // ❌ Permission check in route
+        await checkPostPermissions(post, userId);
 
         // ... 100+ more lines of business logic
 
@@ -452,31 +452,29 @@ router.post('/:formID/submit', async (req: Request, res: Response) => {
 **Step 1: Create Controller**
 
 ```typescript
-// controllers/SubmissionController.ts
-export class SubmissionController extends BaseController {
-    private submissionService: SubmissionService;
+// controllers/PostController.ts
+export class PostController extends BaseController {
+    private postService: PostService;
 
     constructor() {
         super();
-        this.submissionService = new SubmissionService();
+        this.postService = new PostService();
     }
 
-    async submitForm(req: Request, res: Response): Promise<void> {
+    async createPost(req: Request, res: Response): Promise<void> {
         try {
-            const validated = submitFormSchema.parse({
-                formID: parseInt(req.params.formID),
+            const validated = createPostSchema.parse({
                 ...req.body,
             });
 
-            const result = await this.submissionService.processSubmission(
+            const result = await this.postService.createPost(
                 validated,
-                res.locals.effectiveUserId,
-                res.locals
+                res.locals.userId
             );
 
-            this.handleSuccess(res, result, 'Submission processed');
+            this.handleSuccess(res, result, 'Post created successfully');
         } catch (error) {
-            this.handleError(error, res, 'submitForm');
+            this.handleError(error, res, 'createPost');
         }
     }
 }
@@ -485,17 +483,16 @@ export class SubmissionController extends BaseController {
 **Step 2: Create Service**
 
 ```typescript
-// services/submissionService.ts
-export class SubmissionService {
-    async processSubmission(
-        data: SubmitFormDTO,
-        userId: string,
-        context: any
-    ): Promise<SubmissionResult> {
+// services/postService.ts
+export class PostService {
+    async createPost(
+        data: CreatePostDTO,
+        userId: string
+    ): Promise<PostResult> {
         // Permission check
-        const canComplete = await permissionService.canCompleteStep(userId, data.stepInstanceId);
-        if (!canComplete) {
-            throw new ForbiddenError('No permission to complete step');
+        const canCreate = await permissionService.canCreatePost(userId);
+        if (!canCreate) {
+            throw new ForbiddenError('No permission to create post');
         }
 
         // Execute workflow
@@ -530,17 +527,17 @@ export class SubmissionService {
 **Step 3: Update Route**
 
 ```typescript
-// routes/submissionRoutes.ts
-import { SubmissionController } from '../controllers/SubmissionController';
+// routes/postRoutes.ts
+import { PostController } from '../controllers/PostController';
 
 const router = Router();
-const controller = new SubmissionController();
+const controller = new PostController();
 
 // ✅ CLEAN: Just routing
-router.post('/:formID/submit',
+router.post('/',
     SSOMiddlewareClient.verifyLoginStatus,
     auditMiddleware,
-    async (req, res) => controller.submitForm(req, res)
+    async (req, res) => controller.createPost(req, res)
 );
 ```
 

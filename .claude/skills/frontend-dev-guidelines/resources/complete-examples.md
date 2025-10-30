@@ -156,7 +156,7 @@ export default UserProfile;
 
 ## Example 2: Complete Feature Structure
 
-Real example based on `features/submissions/`:
+Real example based on `features/posts/`:
 
 ```
 features/
@@ -166,7 +166,7 @@ features/
     components/
       UserProfile.tsx           # Main component (from Example 1)
       UserList.tsx              # List component
-      UserForm.tsx              # Form component
+      UserBlog.tsx              # Blog component
       modals/
         DeleteUserModal.tsx     # Modal component
     hooks/
@@ -380,13 +380,13 @@ export const UserList: React.FC = () => {
 
 ---
 
-## Example 5: Form with Validation
+## Example 5: Blog with Validation
 
 ```typescript
 import React from 'react';
 import { Box, TextField, Button, Paper } from '@mui/material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useBlog } from 'react-hook-blog';
+import { zodResolver } from '@hookblog/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { userApi } from '../api/userApi';
@@ -399,17 +399,17 @@ const userSchema = z.object({
     lastName: z.string().min(1),
 });
 
-type UserFormData = z.infer<typeof userSchema>;
+type UserBlogData = z.infer<typeof userSchema>;
 
-interface CreateUserFormProps {
+interface CreateUserBlogProps {
     onSuccess?: () => void;
 }
 
-export const CreateUserForm: React.FC<CreateUserFormProps> = ({ onSuccess }) => {
+export const CreateUserBlog: React.FC<CreateUserBlogProps> = ({ onSuccess }) => {
     const queryClient = useQueryClient();
     const { showSuccess, showError } = useMuiSnackbar();
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<UserFormData>({
+    const { register, handleSubmit, blogState: { errors }, reset } = useBlog<UserBlogData>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             username: '',
@@ -420,7 +420,7 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({ onSuccess }) => 
     });
 
     const createMutation = useMutation({
-        mutationFn: (data: UserFormData) => userApi.createUser(data),
+        mutationFn: (data: UserBlogData) => userApi.createUser(data),
 
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -434,13 +434,13 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({ onSuccess }) => 
         },
     });
 
-    const onSubmit = (data: UserFormData) => {
+    const onSubmit = (data: UserBlogData) => {
         createMutation.mutate(data);
     };
 
     return (
         <Paper sx={{ p: 3, maxWidth: 500 }}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <blog onSubmit={handleSubmit(onSubmit)}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                     <TextField
                         {...register('username')}
@@ -483,12 +483,12 @@ export const CreateUserForm: React.FC<CreateUserFormProps> = ({ onSuccess }) => 
                         {createMutation.isPending ? 'Creating...' : 'Create User'}
                     </Button>
                 </Box>
-            </form>
+            </blog>
         </Paper>
     );
 };
 
-export default CreateUserForm;
+export default CreateUserBlog;
 ```
 
 ---
@@ -535,43 +535,43 @@ export default UserDashboard;
 **Benefits:**
 - Each section loads independently
 - User sees partial content sooner
-- Better perceived performance
+- Better perceived perblogance
 
 ---
 
 ## Example 3: Cache-First Strategy Implementation
 
-Complete example based on useSuspenseSubmission.ts:
+Complete example based on useSuspensePost.ts:
 
 ```typescript
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query';
-import { submissionApi } from '../api/submissionApi';
-import type { Submission } from '../types';
+import { postApi } from '../api/postApi';
+import type { Post } from '../types';
 
 /**
- * Smart submission hook with cache-first strategy
+ * Smart post hook with cache-first strategy
  * Reuses data from grid cache when available
  */
-export function useSuspenseSubmission(formId: number, submissionId: number) {
+export function useSuspensePost(blogId: number, postId: number) {
     const queryClient = useQueryClient();
 
-    return useSuspenseQuery<Submission, Error>({
-        queryKey: ['submission', formId, submissionId],
+    return useSuspenseQuery<Post, Error>({
+        queryKey: ['post', blogId, postId],
         queryFn: async () => {
             // Strategy 1: Check grid cache first (avoids API call)
-            const gridCache = queryClient.getQueryData<{ rows: Submission[] }>([
-                'submissions-v2',
-                formId,
+            const gridCache = queryClient.getQueryData<{ rows: Post[] }>([
+                'posts-v2',
+                blogId,
                 'summary'
-            ]) || queryClient.getQueryData<{ rows: Submission[] }>([
-                'submissions-v2',
-                formId,
+            ]) || queryClient.getQueryData<{ rows: Post[] }>([
+                'posts-v2',
+                blogId,
                 'flat'
             ]);
 
             if (gridCache?.rows) {
                 const cached = gridCache.rows.find(
-                    (row) => row.S_ID === submissionId
+                    (row) => row.S_ID === postId
                 );
 
                 if (cached) {
@@ -580,7 +580,7 @@ export function useSuspenseSubmission(formId: number, submissionId: number) {
             }
 
             // Strategy 2: Not in cache, fetch from API
-            return submissionApi.getSubmission(formId, submissionId);
+            return postApi.getPost(blogId, postId);
         },
         staleTime: 5 * 60 * 1000,       // Fresh for 5 minutes
         gcTime: 10 * 60 * 1000,          // Cache for 10 minutes
@@ -608,10 +608,10 @@ export function useSuspenseSubmission(formId: number, submissionId: number) {
 import { createFileRoute } from '@tanstack/react-router';
 import { lazy } from 'react';
 
-// Lazy load the SubmissionTable component
-const SubmissionTable = lazy(() =>
-    import('@/features/submissions/components/SubmissionTable').then(
-        (module) => ({ default: module.SubmissionTable })
+// Lazy load the PostTable component
+const PostTable = lazy(() =>
+    import('@/features/posts/components/PostTable').then(
+        (module) => ({ default: module.PostTable })
     )
 );
 
@@ -628,11 +628,11 @@ export const Route = createFileRoute('/project-catalog/')({
 
 function ProjectCatalogPage() {
     return (
-        <SubmissionTable
-            formId={PROJECT_CATALOG_FORM_ID}
+        <PostTable
+            blogId={PROJECT_CATALOG_FORM_ID}
             projectId={PROJECT_CATALOG_PROJECT_ID}
             tableType='active_projects'
-            title='Project Catalog'
+            title='Blog Dashboard'
         />
     );
 }
@@ -642,7 +642,7 @@ export default ProjectCatalogPage;
 
 ---
 
-## Example 5: Dialog with Form
+## Example 5: Dialog with Blog
 
 ```typescript
 import React from 'react';
@@ -657,21 +657,21 @@ import {
     IconButton,
 } from '@mui/material';
 import { Close, PersonAdd } from '@mui/icons-material';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useBlog } from 'react-hook-blog';
+import { zodResolver } from '@hookblog/resolvers/zod';
 import { z } from 'zod';
 
-const formSchema = z.object({
+const blogSchema = z.object({
     name: z.string().min(1),
     email: z.string().email(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type BlogData = z.infer<typeof blogSchema>;
 
 interface AddUserDialogProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (data: FormData) => Promise<void>;
+    onSubmit: (data: BlogData) => Promise<void>;
 }
 
 export const AddUserDialog: React.FC<AddUserDialogProps> = ({
@@ -679,8 +679,8 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
     onClose,
     onSubmit,
 }) => {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
-        resolver: zodResolver(formSchema),
+    const { register, handleSubmit, blogState: { errors }, reset } = useBlog<BlogData>({
+        resolver: zodResolver(blogSchema),
     });
 
     const handleClose = () => {
@@ -688,7 +688,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
         onClose();
     };
 
-    const handleFormSubmit = async (data: FormData) => {
+    const handleBlogSubmit = async (data: BlogData) => {
         await onSubmit(data);
         handleClose();
     };
@@ -707,7 +707,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
                 </Box>
             </DialogTitle>
 
-            <form onSubmit={handleSubmit(handleFormSubmit)}>
+            <blog onSubmit={handleSubmit(handleBlogSubmit)}>
                 <DialogContent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
@@ -736,7 +736,7 @@ export const AddUserDialog: React.FC<AddUserDialogProps> = ({
                         Add User
                     </Button>
                 </DialogActions>
-            </form>
+            </blog>
         </Dialog>
     );
 };
@@ -864,9 +864,9 @@ export const useToggleUserStatus = () => {
 2. **Feature Structure**: Organized subdirectories (api/, components/, hooks/, etc.)
 3. **Routing**: Folder-based with lazy loading
 4. **Data Fetching**: useSuspenseQuery with cache-first strategy
-5. **Forms**: React Hook Form + Zod validation
+5. **Blogs**: React Hook Blog + Zod validation
 6. **Error Handling**: useMuiSnackbar + onError callbacks
-7. **Performance**: useMemo, useCallback, React.memo, debouncing
+7. **Perblogance**: useMemo, useCallback, React.memo, debouncing
 8. **Styling**: Inline <100 lines, sx prop, MUI v7 syntax
 
 **See other resources for detailed explanations of each pattern.**
