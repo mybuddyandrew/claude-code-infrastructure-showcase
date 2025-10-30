@@ -1,8 +1,8 @@
-# Claude Code Infrastructure Showcase
+# Claude Code Rails Infrastructure Showcase
 
-**A curated reference library of production-tested Claude Code infrastructure.**
+**A curated reference library of production-tested Claude Code infrastructure for Ruby on Rails.**
 
-Born from 6 months of real-world use managing a complex TypeScript microservices project, this showcase provides the patterns and systems that solved the "skills don't activate automatically" problem and scaled Claude Code for enterprise development.
+Born from real-world Rails development experience, this showcase provides the patterns and systems that solved the "skills don't activate automatically" problem and scaled Claude Code for Rails development - from APIs to full-stack applications.
 
 > **This is NOT a working application** - it's a reference library. Copy what you need into your own projects.
 
@@ -44,11 +44,11 @@ Born from 6 months of real-world use managing a complex TypeScript microservices
 Browse the [skills catalog](.claude/skills/) and copy what you need.
 
 **Available:**
-- **backend-dev-guidelines** - Node.js/Express/TypeScript patterns
-- **frontend-dev-guidelines** - React/TypeScript/MUI v7 patterns
+- **rails-backend-guidelines** - Rails MVC, Service objects, Concerns, Authentication/Authorization
+- **rails-testing-guide** - Minitest patterns, fixtures, integration tests
+- **rails-api-patterns** - API-only Rails, serialization, versioning
 - **skill-developer** - Meta-skill for creating skills
-- **route-tester** - Test authenticated API routes
-- **error-tracking** - Sentry integration patterns
+- **error-tracking** - Error monitoring integration patterns
 
 **👉 [Skills Guide: .claude/skills/README.md](.claude/skills/README.md)**
 
@@ -81,14 +81,14 @@ Browse the [skills catalog](.claude/skills/) and copy what you need.
 
 ### Production-Tested Patterns
 
-These aren't theoretical examples - they're extracted from:
-- ✅ 6 microservices in production
-- ✅ 50,000+ lines of TypeScript
-- ✅ React frontend with complex data grids
-- ✅ Sophisticated workflow engine
-- ✅ 6 months of daily Claude Code use
+These aren't theoretical examples - they're built from real Rails experience:
+- ✅ Rails APIs in production
+- ✅ Full-stack Rails applications
+- ✅ Service objects and business logic patterns
+- ✅ Authentication and authorization systems (Devise, Pundit)
+- ✅ Real-world Rails development with Claude Code
 
-The patterns work because they solved real problems.
+The patterns work because they're based on actual Rails projects.
 
 ### Modular Skills (500-Line Rule)
 
@@ -111,22 +111,21 @@ skill-name/
 
 ```
 .claude/
-├── skills/                 # 5 production skills
-│   ├── backend-dev-guidelines/  (12 resource files)
-│   ├── frontend-dev-guidelines/ (11 resource files)
-│   ├── skill-developer/         (7 resource files)
-│   ├── route-tester/
-│   ├── error-tracking/
-│   └── skill-rules.json    # Skill activation configuration
+├── skills/                 # Rails-focused skills
+│   ├── rails-backend-guidelines/  (10+ resource files)
+│   ├── rails-testing-guide/       (Minitest patterns)
+│   ├── rails-api-patterns/        (API-specific patterns)
+│   ├── skill-developer/           (7 resource files)
+│   ├── error-tracking/            (Error monitoring)
+│   └── skill-rules.json           # Skill activation configuration
 ├── hooks/                  # 6 hooks for automation
 │   ├── skill-activation-prompt.*  (ESSENTIAL)
 │   ├── post-tool-use-tracker.sh   (ESSENTIAL)
-│   ├── tsc-check.sh        (optional, needs customization)
-│   └── trigger-build-resolver.sh  (optional)
+│   └── ... additional hooks       (optional)
 ├── agents/                 # 10 specialized agents
 │   ├── code-architecture-reviewer.md
 │   ├── refactor-planner.md
-│   ├── frontend-error-fixer.md
+│   ├── documentation-architect.md
 │   └── ... 7 more
 └── commands/               # 3 slash commands
     ├── dev-docs.md
@@ -134,7 +133,6 @@ skill-name/
 
 dev/
 └── active/                 # Dev docs pattern examples
-    └── public-infrastructure-repo/
 ```
 
 ---
@@ -143,13 +141,13 @@ dev/
 
 ### 🎨 Skills (5)
 
-| Skill | Lines | Purpose | Best For |
-|-------|-------|---------|----------|
-| [**skill-developer**](.claude/skills/skill-developer/) | 426 | Creating and managing skills | Meta-development |
-| [**backend-dev-guidelines**](.claude/skills/backend-dev-guidelines/) | 304 | Express/Prisma/Sentry patterns | Backend APIs |
-| [**frontend-dev-guidelines**](.claude/skills/frontend-dev-guidelines/) | 398 | React/MUI v7/TypeScript | React frontends |
-| [**route-tester**](.claude/skills/route-tester/) | 389 | Testing authenticated routes | API testing |
-| [**error-tracking**](.claude/skills/error-tracking/) | ~250 | Sentry integration | Error monitoring |
+| Skill | Purpose | Best For |
+|-------|---------|----------|
+| [**rails-backend-guidelines**](.claude/skills/rails-backend-guidelines/) | Rails MVC, Services, Concerns, Auth | Rails applications |
+| [**rails-testing-guide**](.claude/skills/rails-testing-guide/) | Minitest patterns and best practices | Rails testing |
+| [**rails-api-patterns**](.claude/skills/rails-api-patterns/) | API-only Rails, serialization, versioning | Rails APIs |
+| [**skill-developer**](.claude/skills/skill-developer/) | Creating and managing skills | Meta-development |
+| [**error-tracking**](.claude/skills/error-tracking/) | Error monitoring integration | Production apps |
 
 **All skills follow the modular pattern** - main file + resource files for progressive disclosure.
 
@@ -161,8 +159,6 @@ dev/
 |------|------|-----------|---------------|
 | skill-activation-prompt | UserPromptSubmit | ✅ YES | ✅ None needed |
 | post-tool-use-tracker | PostToolUse | ✅ YES | ✅ None needed |
-| tsc-check | Stop | ⚠️ Optional | ⚠️ Heavy - monorepo only |
-| trigger-build-resolver | Stop | ⚠️ Optional | ⚠️ Heavy - monorepo only |
 | error-handling-reminder | Stop | ⚠️ Optional | ⚠️ Moderate |
 | stop-build-check-enhanced | Stop | ⚠️ Optional | ⚠️ Moderate |
 
@@ -179,13 +175,13 @@ dev/
 | code-architecture-reviewer | Review code for architectural consistency |
 | code-refactor-master | Plan and execute refactoring |
 | documentation-architect | Generate comprehensive documentation |
-| frontend-error-fixer | Debug frontend errors |
 | plan-reviewer | Review development plans |
 | refactor-planner | Create refactoring strategies |
 | web-research-specialist | Research technical issues online |
 | auth-route-tester | Test authenticated endpoints |
 | auth-route-debugger | Debug auth issues |
-| auto-error-resolver | Auto-fix TypeScript errors |
+| frontend-error-fixer | Debug errors in web interfaces |
+| auto-error-resolver | Auto-fix common errors |
 
 **👉 [How agents work →](.claude/agents/README.md)**
 
@@ -220,7 +216,7 @@ dev/
 - Resource files <500 lines each (deep dives)
 - Claude loads incrementally as needed
 
-**Example:** backend-dev-guidelines has 12 resource files covering routing, controllers, services, repositories, testing, etc.
+**Example:** rails-backend-guidelines has 10+ resource files covering controllers, models, services, concerns, routes, migrations, authentication, testing, etc.
 
 ### Dev Docs Pattern
 
@@ -239,25 +235,20 @@ dev/
 
 ### settings.json
 The included `settings.json` is an **example only**:
-- Stop hooks reference specific monorepo structure
-- Service names (blog-api, etc.) are examples
+- Stop hooks may need customization for your Rails setup
+- Example paths reference standard Rails structure (app/controllers, app/models, etc.)
 - MCP servers may not exist in your setup
 
 **To use it:**
 1. Extract ONLY UserPromptSubmit and PostToolUse hooks
-2. Customize or skip Stop hooks
+2. Customize optional hooks for your needs
 3. Update MCP server list for your setup
 
-### Blog Domain Examples
-Skills use generic blog examples (Post/Comment/User):
+### Example Domain
+Skills use generic examples (Post/Comment/User):
 - These are **teaching examples**, not requirements
-- Patterns work for any domain (e-commerce, SaaS, etc.)
-- Adapt the patterns to your business logic
-
-### Hook Directory Structures
-Some hooks expect specific structures:
-- `tsc-check.sh` expects service directories
-- Customize based on YOUR project layout
+- Patterns work for any domain (e-commerce, SaaS, content management, etc.)
+- Adapt the patterns to your Rails application's domain
 
 ---
 
@@ -338,7 +329,7 @@ When helping users integrate:
 - 📝 Contribute examples from your domain
 
 **Background:**
-This infrastructure was detailed in the viral Reddit post ["Claude Code is a Beast - Part 2"](https://www.reddit.com/r/ClaudeAI/comments/1gc4xme/claude_code_is_a_beast_part_2_the_secret_to/). After hundreds of requests, this showcase was created to help the community implement these patterns.
+This is a Rails adaptation of the infrastructure detailed in the viral Reddit post ["Claude Code is a Beast - Part 2"](https://www.reddit.com/r/ClaudeAI/comments/1gc4xme/claude_code_is_a_beast_part_2_the_secret_to/). The original TypeScript/Node.js showcase was forked and adapted for the Rails community.
 
 ---
 
