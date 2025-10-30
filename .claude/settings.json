@@ -2,8 +2,8 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "mysql",
-    "sequential-thinking",
-    "playwright"
+    "postgresql",
+    "sequential-thinking"
   ],
   "permissions": {
     "allow": [
@@ -33,20 +33,6 @@
           {
             "type": "command",
             "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/post-tool-use-tracker.sh"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/tsc-check.sh"
-          },
-          {
-            "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/trigger-build-resolver.sh"
           }
         ]
       }

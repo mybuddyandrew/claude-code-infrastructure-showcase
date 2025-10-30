@@ -21,55 +21,40 @@ This repository is a **reference library** of Claude Code infrastructure compone
 
 **CRITICAL:** Before integrating a skill, verify the user's tech stack matches the skill requirements.
 
-### Frontend Skills
+### Rails Backend Skills
 
-**frontend-dev-guidelines requires:**
-- React (18+)
-- MUI v7
-- TanStack Query
-- TanStack Router
-- TypeScript
+**rails-backend-guidelines requires:**
+- Ruby on Rails (7.x recommended)
+- Ruby 3.x
+- ActiveRecord
+- Standard Rails MVC structure
 
 **Before integrating, ask:**
-"Do you use React with MUI v7?"
+"Are you using Ruby on Rails for your backend?"
 
 **If NO:**
 ```
-The frontend-dev-guidelines skill is designed specifically for React + MUI v7. I can:
-1. Help you create a similar skill adapted for [their stack] using this as a template
-2. Extract the framework-agnostic patterns (file organization, performance, etc.)
+The rails-backend-guidelines skill is designed specifically for Ruby on Rails. I can:
+1. Help you create similar guidelines adapted for [their stack] using this as a template
+2. Extract the architecture patterns (MVC, service objects - work with most frameworks)
 3. Skip this skill if not relevant
 
 Which would you prefer?
 ```
 
-### Backend Skills
+**rails-testing-guide requires:**
+- Rails with Minitest (default Rails testing)
+- Can adapt for RSpec if needed
 
-**backend-dev-guidelines requires:**
-- Node.js/Express
-- TypeScript
-- Prisma ORM
-- Sentry
-
-**Before integrating, ask:**
-"Do you use Node.js with Express and Prisma?"
-
-**If NO:**
-```
-The backend-dev-guidelines skill is designed for Express/Prisma. I can:
-1. Help you create similar guidelines adapted for [their stack] using this as a template
-2. Extract the architecture patterns (layered architecture works for any framework)
-3. Skip this skill
-
-Which would you prefer?
-```
+**rails-api-patterns requires:**
+- Rails API-only mode or mixed
+- JSON serialization (JBuilder, ActiveModel::Serializers, etc.)
 
 ### Skills That Are Tech-Agnostic
 
 These work for ANY tech stack:
 - ✅ **skill-developer** - Meta-skill, no tech requirements
-- ✅ **route-tester** - Only requires JWT cookie auth (framework agnostic)
-- ✅ **error-tracking** - Sentry works with most stacks
+- ✅ **error-tracking** - Error monitoring works with most stacks
 
 ---
 
@@ -128,29 +113,32 @@ ls $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json
 
 **CRITICAL:** Update `pathPatterns` in skill-rules.json to match THEIR structure:
 
-**Example - User has monorepo:**
+**Example - User has Rails engine in monorepo:**
 ```json
 {
-  "backend-dev-guidelines": {
+  "rails-backend-guidelines": {
     "fileTriggers": {
       "pathPatterns": [
-        "packages/api/src/**/*.ts",
-        "packages/server/src/**/*.ts",
-        "apps/backend/**/*.ts"
+        "engines/*/app/**/*.rb",
+        "apps/api/app/**/*.rb",
+        "packages/backend/app/**/*.rb"
       ]
     }
   }
 }
 ```
 
-**Example - User has single backend:**
+**Example - User has standard Rails app:**
 ```json
 {
-  "backend-dev-guidelines": {
+  "rails-backend-guidelines": {
     "fileTriggers": {
       "pathPatterns": [
-        "src/**/*.ts",
-        "backend/**/*.ts"
+        "app/controllers/**/*.rb",
+        "app/models/**/*.rb",
+        "app/services/**/*.rb",
+        "config/routes.rb",
+        "db/migrate/**/*.rb"
       ]
     }
   }
@@ -161,9 +149,9 @@ ls $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json
 ```json
 {
   "pathPatterns": [
-    "**/*.ts",          // All TypeScript files
-    "src/**/*.ts",      // Common src directory
-    "backend/**/*.ts"   // Common backend directory
+    "app/**/*.rb",          // All Rails app files
+    "config/routes.rb",     // Routes file
+    "db/migrate/**/*.rb"    // Migrations
   ]
 }
 ```
@@ -184,39 +172,41 @@ cat $CLAUDE_PROJECT_DIR/.claude/skills/skill-rules.json | jq .
 
 ### Skill-Specific Notes
 
-#### backend-dev-guidelines
-- **Tech Requirements:** Node.js/Express, Prisma, TypeScript, Sentry
-- **Ask:** "Do you use Express with Prisma?" "Where's your backend code?"
-- **If different stack:** Offer to adapt using this as template
+#### rails-backend-guidelines
+- **Tech Requirements:** Ruby on Rails 7.x, Ruby 3.x, ActiveRecord
+- **Ask:** "Are you using Rails?" "Standard Rails structure or custom?" "Rails API or full-stack?"
+- **If different Ruby framework:** Offer to adapt for Sinatra, Hanami, etc.
 - **Customize:** pathPatterns
-- **Example paths:** `api/`, `server/`, `backend/`, `services/*/src/`
-- **Adaptation tip:** Architecture patterns (Routes→Controllers→Services) transfer to most frameworks
+- **Example paths:** `app/controllers/`, `app/models/`, `app/services/`, `engines/*/app/`
+- **Adaptation tip:** MVC + Service objects pattern transfers to most frameworks
+- **Includes:** Devise authentication, Pundit authorization, background jobs, Minitest testing
 
-#### frontend-dev-guidelines
-- **Tech Requirements:** React 18+, MUI v7, TanStack Query/Router, TypeScript
-- **Ask:** "Do you use React with MUI v7?" "Where's your frontend code?"
-- **If different stack:** Offer to create adapted version (Vue, Angular, etc.)
-- **Customize:** pathPatterns + all framework-specific examples
-- **Example paths:** `frontend/`, `client/`, `web/`, `apps/web/src/`
-- **Adaptation tip:** File organization and performance patterns transfer, component code doesn't
+#### rails-testing-guide
+- **Tech Requirements:** Rails with Minitest (default)
+- **Ask:** "Using Minitest or RSpec?"
+- **If RSpec:** Can adapt patterns for RSpec syntax
+- **Customize:** pathPatterns for test locations
+- **Example paths:** `test/`, `spec/`
 
-#### route-tester
-- **Tech Requirements:** JWT cookie-based authentication (framework agnostic)
-- **Ask:** "Do you use JWT cookie-based authentication?"
-- **If NO:** "This skill is designed for JWT cookies. Want me to adapt it for [their auth type] or skip it?"
-- **Customize:** Service URLs, auth patterns
-- **Works with:** Any backend framework using JWT cookies
+#### rails-api-patterns
+- **Tech Requirements:** Rails (API-only or mixed)
+- **Ask:** "Building API-only or full-stack?" "Using serializers?"
+- **Customize:** pathPatterns, serialization approach
+- **Example paths:** `app/controllers/api/`, `app/serializers/`
+- **Adaptation tip:** REST API patterns and serialization concepts transfer to most frameworks
 
 #### error-tracking
-- **Tech Requirements:** Sentry (works with most backends)
-- **Ask:** "Do you use Sentry?" "Where's your backend code?"
-- **If NO Sentry:** "Want to use this as template for [their error tracking]?"
-- **Customize:** pathPatterns
-- **Adaptation tip:** Error tracking philosophy transfers to other tools (Rollbar, Bugsnag, etc.)
+- **Tech Requirements:** Error monitoring service (Sentry, Bugsnag, etc.)
+- **Ask:** "Do you use error monitoring?" "Which service?"
+- **If different service:** "Want to use this as template for [their error tracking]?"
+- **Customize:** pathPatterns, service-specific code
+- **Example paths:** `config/initializers/sentry.rb`, `app/controllers/application_controller.rb`
+- **Adaptation tip:** Error tracking philosophy transfers to other tools (Rollbar, Bugsnag, Airbrake, etc.)
 
 #### skill-developer
 - **Tech Requirements:** None!
 - **Copy as-is** - meta-skill, fully generic, teaches skill creation for ANY tech stack
+- **Use for:** Creating new skills for Rails or any other framework
 
 ---
 
@@ -231,20 +221,21 @@ When user's tech stack differs from skill requirements, you have options:
 **Process:**
 1. **Copy the skill as a starting point:**
    ```bash
-   cp -r showcase/.claude/skills/frontend-dev-guidelines \\
-         $CLAUDE_PROJECT_DIR/.claude/skills/vue-dev-guidelines
+   cp -r showcase/.claude/skills/rails-backend-guidelines \\
+         $CLAUDE_PROJECT_DIR/.claude/skills/sinatra-backend-guidelines
    ```
 
 2. **Identify what needs changing:**
-   - Framework-specific code examples (React → Vue)
-   - Library APIs (MUI → Vuetify/PrimeVue)
-   - Import statements
-   - Component patterns
+   - Framework-specific code examples (Rails → Sinatra)
+   - Library APIs (ActiveRecord → DataMapper/Sequel)
+   - Route definitions (config/routes.rb → Sinatra DSL)
+   - Framework conventions
 
 3. **Keep what transfers:**
-   - File organization principles
-   - Performance optimization strategies
-   - TypeScript standards
+   - MVC architecture principles
+   - Service object patterns
+   - Database optimization strategies
+   - Testing philosophies
    - General best practices
 
 4. **Replace examples systematically:**
